@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/antirek/ami-events-sample",
   "dependencies": {
-    "asterisk-manager": "^0.1.15"
+    "asterisk-manager": "^0.1.15",
+    "node-uuid": "^1.4.3",
+    "q": "^1.4.1"
   }
 }
