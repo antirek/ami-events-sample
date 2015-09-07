@@ -38,49 +38,40 @@ var id1 = 'lolo';
 var id2 = 'lolo2';
 
 
-var q = function (evt) {
-	console.log('q', evt.actionid);
-	if (evt.actionid == id1 || evt.actionid == id2) {
-		//console.log('event', evt);
-		if (evt['event'] == 'QueueParams') console.log('queue', evt.queue); 
-		if (evt['event'] == 'QueueMember') console.log('queue', evt.queue, 'member', evt.location);
-		if (evt['event'] == 'QueueEntry') console.log('queue', evt.queue, 'callerid', evt.callerid || evt.calleridnum);
-
-	}
-};
 
 
-var h = function (evt) {
-	console.log('h', evt.actionid);
-	if (evt.actionid == id1 || evt.actionid == id2) {
-		//console.log('event', evt);
-		if (evt['event'] == 'QueueParams') console.log('queue', evt.queue); 
-		if (evt['event'] == 'QueueMember') console.log('queue', evt.queue, 'member', evt.location);
-		if (evt['event'] == 'QueueEntry') console.log('queue', evt.queue, 'callerid', evt.callerid || evt.calleridnum);
-		if (evt['event'] == 'QueueStatusComplete') {console.log('complete'); ami.removeListener('managerevent', q);}
-	}
-}
 
-ami.on('managerevent', q)
-ami.on('managerevent', h)
+var queuestatus = function (callback) {
 
+	var queue_evts = {
+		params: [],
+		members: [],
+		entries: []
+	};
 
-ami.action({
-  'action': 'queuestatus',
-  'actionid': id1
-}, function (err, res) {
-	console.log('action', err, res);
-	
-	
+	var actionid = 'jdfkgjdkf';
 
+	var catcher = function (evt) {
+		if (evt.actionid == actionid) {
+			if (evt['event'] == 'QueueParams') queue_evts.params.push(evt);
+			if (evt['event'] == 'QueueMember') queue_evts.members.push(evt);
+			if (evt['event'] == 'QueueEntry') queue_evts.entries.push(evt);
+			if (evt['event'] == 'QueueStatusComplete') { 
+				ami.removeListener('managerevent', catcher); 
+				callback(queue_evts);
+			}
+		};
+	};
 
-});
-
+	ami.on('managerevent', catcher);
 	ami.action({
 	  'action': 'queuestatus',
-	  'actionid':  id2
+	  'actionid': actionid
 	}, function (err, res) {
 		console.log('action', err, res);
 	});
+};
 
-
+queuestatus(function (arr) {
+	console.log(arr);
+});
